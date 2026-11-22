@@ -27,6 +27,15 @@ if (!bytes.subarray(0, 8).equals(pngMagic)) {
   throw new Error("entry.png failed PNG magic-byte verification");
 }
 
+// IHDR chunk: width and height are 4-byte big-endian values at bytes 16-23.
+const width = bytes.readUInt32BE(16);
+const height = bytes.readUInt32BE(20);
+if (width !== 1024 || height !== 1024) {
+  throw new Error(
+    `entry.png dimensions must be 1024x1024, got ${width}x${height}`,
+  );
+}
+
 const sourceSize = statSync(source).size;
 const size = statSync(destination).size;
 if (size !== bytes.length || size !== sourceSize) {
